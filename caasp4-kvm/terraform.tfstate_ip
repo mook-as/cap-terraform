@@ -1,0 +1,1409 @@
+{
+  "version": 4,
+  "terraform_version": "0.12.8",
+  "serial": 298,
+  "lineage": "7d4615fc-1289-7c8c-c415-6c5940b62413",
+  "outputs": {
+    "ip_load_balancer": {
+      "value": "10.162.231.209",
+      "type": "string"
+    },
+    "ip_masters": {
+      "value": [
+        [
+          "10.162.231.214"
+        ]
+      ],
+      "type": [
+        "tuple",
+        [
+          [
+            "tuple",
+            [
+              "string"
+            ]
+          ]
+        ]
+      ]
+    },
+    "ip_workers": {
+      "value": [
+        [
+          "10.162.231.202",
+          "10.162.231.215"
+        ]
+      ],
+      "type": [
+        "tuple",
+        [
+          [
+            "tuple",
+            [
+              "string",
+              "string"
+            ]
+          ]
+        ]
+      ]
+    }
+  },
+  "resources": [
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "haproxy_apiserver_backends_master",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "33af214eabaf0fdf653244bf2b58cb6b14e6750c11419622995d5602addcbc96",
+            "rendered": "server testing-master-0.caasp.local 10.162.2.0:6443 check check-ssl verify none\n",
+            "template": "server ${fqdn} ${ip}:6443 check check-ssl verify none\n",
+            "vars": {
+              "fqdn": "testing-master-0.caasp.local",
+              "ip": "10.162.2.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "haproxy_dex_backends_master",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "1b8a2d2c8dd69437edb482a5d8895f20e648978db52fbbe0144b1e2258e2ac43",
+            "rendered": "server testing-master-0.caasp.local 10.162.2.0:32000 check check-ssl verify none\n",
+            "template": "server ${fqdn} ${ip}:32000 check check-ssl verify none\n",
+            "vars": {
+              "fqdn": "testing-master-0.caasp.local",
+              "ip": "10.162.2.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "haproxy_gangway_backends_master",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "7b195112f06a3f5d49e90a83cad3e90fae455a6d9595b874452cbd523e984b06",
+            "rendered": "server testing-master-0.caasp.local 10.162.2.0:32001 check check-ssl verify none\n",
+            "template": "server ${fqdn} ${ip}:32001 check check-ssl verify none\n",
+            "vars": {
+              "fqdn": "testing-master-0.caasp.local",
+              "ip": "10.162.2.0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "lb_cloud_init_userdata",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "95fcb058dd91b425af174e77af7844817ae8084f68ba70ceccef2b080e0b5905",
+            "rendered": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    sles:linux\n  expire: False\n\nssh_authorized_keys:\n  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: ha_pool\n      name: ha_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-HA/15/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: ha_updates\n      name: ha_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-HA/15/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\npackages:\n  - haproxy\n\nwrite_files:\n- path: /etc/haproxy/haproxy.cfg\n  content: |\n    defaults\n      timeout connect 10s\n      timeout client 86400s\n      timeout server 86400s\n\n    listen stats\n      bind    *:9000\n      mode    http\n      stats   hide-version\n      stats   uri       /stats\n\n    frontend apiserver\n      bind :6443\n      default_backend apiserver-backend\n\n    frontend gangway\n      bind :32001\n      default_backend gangway-backend\n\n    frontend dex\n      bind :32000\n      default_backend dex-backend\n\n    backend apiserver-backend\n      option httpchk GET /healthz\n      server testing-master-0.caasp.local 10.162.2.0:6443 check check-ssl verify none\n\n\n    backend gangway-backend\n      option httpchk GET /\n      server testing-master-0.caasp.local 10.162.2.0:32001 check check-ssl verify none\n\n\n    backend dex-backend\n      option httpchk GET /healthz\n      server testing-master-0.caasp.local 10.162.2.0:32000 check check-ssl verify none\n\n\nruncmd:\n  # Since we are currently inside of the cloud-init systemd unit, trying to\n  # start another service by either `enable --now` or `start` will create a\n  # deadlock. Instead, we have to use the `--no-block-` flag.\n  - [ systemctl, enable, --now, --no-block, haproxy ]\n  - [ systemctl, disable, --now, --no-block, firewalld ]\n  # The template machine should have been cleaned up, so no machine-id exists\n  - [ dbus-uuidgen, --ensure ]\n  - [ systemd-machine-id-setup ]\n  # With a new machine-id generated the journald daemon will work and can be restarted\n  # Without a new machine-id it should be in a failed state\n  - [ systemctl, restart, systemd-journald ]\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n",
+            "template": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    ${username}:${password}\n  expire: False\n\nssh_authorized_keys:\n${authorized_keys}\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n${ntp_servers}\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n${repositories}\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\npackages:\n  - haproxy\n\nwrite_files:\n- path: /etc/haproxy/haproxy.cfg\n  content: |\n    defaults\n      timeout connect 10s\n      timeout client 86400s\n      timeout server 86400s\n\n    listen stats\n      bind    *:9000\n      mode    http\n      stats   hide-version\n      stats   uri       /stats\n\n    frontend apiserver\n      bind :6443\n      default_backend apiserver-backend\n\n    frontend gangway\n      bind :32001\n      default_backend gangway-backend\n\n    frontend dex\n      bind :32000\n      default_backend dex-backend\n\n    backend apiserver-backend\n      option httpchk GET /healthz\n      ${apiserver_backends}\n\n    backend gangway-backend\n      option httpchk GET /\n      ${gangway_backends}\n\n    backend dex-backend\n      option httpchk GET /healthz\n      ${dex_backends}\n\nruncmd:\n  # Since we are currently inside of the cloud-init systemd unit, trying to\n  # start another service by either `enable --now` or `start` will create a\n  # deadlock. Instead, we have to use the `--no-block-` flag.\n  - [ systemctl, enable, --now, --no-block, haproxy ]\n  - [ systemctl, disable, --now, --no-block, firewalld ]\n  # The template machine should have been cleaned up, so no machine-id exists\n  - [ dbus-uuidgen, --ensure ]\n  - [ systemd-machine-id-setup ]\n  # With a new machine-id generated the journald daemon will work and can be restarted\n  # Without a new machine-id it should be in a failed state\n  - [ systemctl, restart, systemd-journald ]\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n",
+            "vars": {
+              "apiserver_backends": "server testing-master-0.caasp.local 10.162.2.0:6443 check check-ssl verify none\n",
+              "authorized_keys": "  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4",
+              "dex_backends": "server testing-master-0.caasp.local 10.162.2.0:32000 check check-ssl verify none\n",
+              "gangway_backends": "server testing-master-0.caasp.local 10.162.2.0:32001 check check-ssl verify none\n",
+              "ntp_servers": "    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org",
+              "password": "linux",
+              "repositories": "    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: ha_pool\n      name: ha_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-HA/15/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: ha_updates\n      name: ha_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-HA/15/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+              "username": "sles"
+            }
+          },
+          "depends_on": [
+            "data.template_file.haproxy_apiserver_backends_master",
+            "data.template_file.haproxy_dex_backends_master",
+            "data.template_file.haproxy_gangway_backends_master",
+            "data.template_file.lb_repositories"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "lb_repositories",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "82d2e40aa36a91efccd88e3b83e337603399a5f6a25a9eaced82abf32a8843fc",
+            "rendered": "    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "basesystem_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 1,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "a7f7d275b1ffe25ccb03c55853ff8587772bd99f0d48a2019a7222612acc7666",
+            "rendered": "    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "basesystem_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 2,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "4b321c3879f8e5ecade21c093bded7701137e85b266948899688b6940ad4e628",
+            "rendered": "    - id: ha_pool\n      name: ha_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-HA/15/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "ha_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Product-HA/15/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 3,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "2e143fd2f370e9fe41602e1dfa436343e21783e950d152fac907c307aa2355d6",
+            "rendered": "    - id: ha_updates\n      name: ha_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-HA/15/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "ha_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Product-HA/15/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 4,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "d5b789f40c63709ee045783ccf180f83f6b6d06d89966d4a2126dfd9130bdef8",
+            "rendered": "    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "sle_server_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 5,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "326a2c7b23a800558af8cdee78f3f5a9e65ee0c05d0100668b32423b3762fa04",
+            "rendered": "    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "sle_server_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "master-cloud-init",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "9b4f4913d18d213c1b77ff5470023fd3fce8862bb0e3fcef9a29a7a1c6f34b43",
+            "rendered": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    sles:linux\n  expire: False\n\nssh_authorized_keys:\n  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: caasp_devel\n      name: caasp_devel\n      baseurl: http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_pool\n      name: containers_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_updates\n      name: containers_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_pool\n      name: serverapps_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_updates\n      name: serverapps_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: suse_ca\n      name: suse_ca\n      baseurl: http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\n# WARNING!!! Do not use cloud-init packages module when SUSE CaaSP Registraion\n# Code is provided. In this case repositories will be added in runcmd module \n# with SUSEConnect command after packages module is ran\n#packages:\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nruncmd:\n  - [ SUSEConnect, -r, INTERNAL-USE-ONLY-256f-b760 ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, INTERNAL-USE-ONLY-256f-b760 ]\n\n\n  - [ zypper, -n, install, kernel-default, -kernel-default-base, ca-certificates-suse ]\n\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n",
+            "template": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    ${username}:${password}\n  expire: False\n\nssh_authorized_keys:\n${authorized_keys}\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n${ntp_servers}\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n${repositories}\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\n# WARNING!!! Do not use cloud-init packages module when SUSE CaaSP Registraion\n# Code is provided. In this case repositories will be added in runcmd module \n# with SUSEConnect command after packages module is ran\n#packages:\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nruncmd:\n${register_scc}\n${register_rmt}\n${commands}\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n",
+            "vars": {
+              "authorized_keys": "  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4",
+              "commands": "  - [ zypper, -n, install, kernel-default, -kernel-default-base, ca-certificates-suse ]\n",
+              "ntp_servers": "    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org",
+              "password": "linux",
+              "register_rmt": "",
+              "register_scc": "  - [ SUSEConnect, -r, INTERNAL-USE-ONLY-256f-b760 ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, INTERNAL-USE-ONLY-256f-b760 ]\n",
+              "repositories": "    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: caasp_devel\n      name: caasp_devel\n      baseurl: http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_pool\n      name: containers_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_updates\n      name: containers_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_pool\n      name: serverapps_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_updates\n      name: serverapps_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: suse_ca\n      name: suse_ca\n      baseurl: http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+              "username": "sles"
+            }
+          },
+          "depends_on": [
+            "data.template_file.master_commands",
+            "data.template_file.master_register_rmt",
+            "data.template_file.master_register_scc",
+            "data.template_file.master_repositories"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "master_commands",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "5a0a072407e9907c1ba6166f8d8d90af492a5732d84105b0b531f0941d4ce675",
+            "rendered": "  - [ zypper, -n, install, kernel-default, -kernel-default-base, ca-certificates-suse ]\n",
+            "template": "  - [ zypper, -n, install, ${packages} ]\n",
+            "vars": {
+              "packages": "kernel-default, -kernel-default-base, ca-certificates-suse"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "master_register_rmt",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": []
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "master_register_scc",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "99a691852b94fa75afaf1f11e98f7ff95eac0e02b56fca5c0f3818cb8563fc4a",
+            "rendered": "  - [ SUSEConnect, -r, INTERNAL-USE-ONLY-256f-b760 ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, INTERNAL-USE-ONLY-256f-b760 ]\n",
+            "template": "  - [ SUSEConnect, -r, ${caasp_registry_code} ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, ${caasp_registry_code} ]\n",
+            "vars": {
+              "caasp_registry_code": "INTERNAL-USE-ONLY-256f-b760"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "master_repositories",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "82d2e40aa36a91efccd88e3b83e337603399a5f6a25a9eaced82abf32a8843fc",
+            "rendered": "    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "basesystem_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 1,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "a7f7d275b1ffe25ccb03c55853ff8587772bd99f0d48a2019a7222612acc7666",
+            "rendered": "    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "basesystem_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 2,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "bf3a7fa732bdcc810eaf299a133defb34aca350e71cdc3126f3d91c7b1deb7d9",
+            "rendered": "    - id: caasp_devel\n      name: caasp_devel\n      baseurl: http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "caasp_devel",
+              "repository_url": "http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/"
+            }
+          }
+        },
+        {
+          "index_key": 3,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "1bb8edbf59b9a94efa9191705a2d7df15ca0392e6ec2f3d4404e1d6a988a2d34",
+            "rendered": "    - id: containers_pool\n      name: containers_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "containers_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 4,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "4b722a5891d2f88184756b4a3955cfee609bd33b689ceb65782eb485ec5316a5",
+            "rendered": "    - id: containers_updates\n      name: containers_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "containers_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 5,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "f43ea64c68ef2ed1b6c781b57836af92d5ca39d6f3948793fc99356787acbaed",
+            "rendered": "    - id: serverapps_pool\n      name: serverapps_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "serverapps_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 6,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "b6a0ad77e4894e85b52ab043d5e2cebc99d6768c21703c462a9123b37e9d20e0",
+            "rendered": "    - id: serverapps_updates\n      name: serverapps_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "serverapps_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 7,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "d5b789f40c63709ee045783ccf180f83f6b6d06d89966d4a2126dfd9130bdef8",
+            "rendered": "    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "sle_server_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 8,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "326a2c7b23a800558af8cdee78f3f5a9e65ee0c05d0100668b32423b3762fa04",
+            "rendered": "    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "sle_server_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 9,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "af8d1994dfa867340015d3d3f0b17a78d6da60f90008031d093231e9eee1c500",
+            "rendered": "    - id: suse_ca\n      name: suse_ca\n      baseurl: http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "suse_ca",
+              "repository_url": "http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "worker-cloud-init",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "9b4f4913d18d213c1b77ff5470023fd3fce8862bb0e3fcef9a29a7a1c6f34b43",
+            "rendered": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    sles:linux\n  expire: False\n\nssh_authorized_keys:\n  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: caasp_devel\n      name: caasp_devel\n      baseurl: http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_pool\n      name: containers_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_updates\n      name: containers_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_pool\n      name: serverapps_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_updates\n      name: serverapps_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: suse_ca\n      name: suse_ca\n      baseurl: http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\n# WARNING!!! Do not use cloud-init packages module when SUSE CaaSP Registraion\n# Code is provided. In this case repositories will be added in runcmd module \n# with SUSEConnect command after packages module is ran\n#packages:\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nruncmd:\n  - [ SUSEConnect, -r, INTERNAL-USE-ONLY-256f-b760 ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, INTERNAL-USE-ONLY-256f-b760 ]\n\n\n  - [ zypper, -n, install, kernel-default, -kernel-default-base, ca-certificates-suse ]\n\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n",
+            "template": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    ${username}:${password}\n  expire: False\n\nssh_authorized_keys:\n${authorized_keys}\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n${ntp_servers}\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n${repositories}\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\n# WARNING!!! Do not use cloud-init packages module when SUSE CaaSP Registraion\n# Code is provided. In this case repositories will be added in runcmd module \n# with SUSEConnect command after packages module is ran\n#packages:\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nruncmd:\n${register_scc}\n${register_rmt}\n${commands}\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n",
+            "vars": {
+              "authorized_keys": "  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4",
+              "commands": "  - [ zypper, -n, install, kernel-default, -kernel-default-base, ca-certificates-suse ]\n",
+              "ntp_servers": "    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org",
+              "password": "linux",
+              "register_rmt": "",
+              "register_scc": "  - [ SUSEConnect, -r, INTERNAL-USE-ONLY-256f-b760 ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, INTERNAL-USE-ONLY-256f-b760 ]\n",
+              "repositories": "    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: caasp_devel\n      name: caasp_devel\n      baseurl: http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_pool\n      name: containers_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_updates\n      name: containers_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_pool\n      name: serverapps_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_updates\n      name: serverapps_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: suse_ca\n      name: suse_ca\n      baseurl: http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+              "username": "sles"
+            }
+          },
+          "depends_on": [
+            "data.template_file.worker_commands",
+            "data.template_file.worker_register_rmt",
+            "data.template_file.worker_register_scc",
+            "data.template_file.worker_repositories"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "worker_commands",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "5a0a072407e9907c1ba6166f8d8d90af492a5732d84105b0b531f0941d4ce675",
+            "rendered": "  - [ zypper, -n, install, kernel-default, -kernel-default-base, ca-certificates-suse ]\n",
+            "template": "  - [ zypper, -n, install, ${packages} ]\n",
+            "vars": {
+              "packages": "kernel-default, -kernel-default-base, ca-certificates-suse"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "worker_register_rmt",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": []
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "worker_register_scc",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "99a691852b94fa75afaf1f11e98f7ff95eac0e02b56fca5c0f3818cb8563fc4a",
+            "rendered": "  - [ SUSEConnect, -r, INTERNAL-USE-ONLY-256f-b760 ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, INTERNAL-USE-ONLY-256f-b760 ]\n",
+            "template": "  - [ SUSEConnect, -r, ${caasp_registry_code} ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, ${caasp_registry_code} ]\n",
+            "vars": {
+              "caasp_registry_code": "INTERNAL-USE-ONLY-256f-b760"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "template_file",
+      "name": "worker_repositories",
+      "each": "list",
+      "provider": "provider.template",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "82d2e40aa36a91efccd88e3b83e337603399a5f6a25a9eaced82abf32a8843fc",
+            "rendered": "    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "basesystem_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 1,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "a7f7d275b1ffe25ccb03c55853ff8587772bd99f0d48a2019a7222612acc7666",
+            "rendered": "    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "basesystem_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 2,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "bf3a7fa732bdcc810eaf299a133defb34aca350e71cdc3126f3d91c7b1deb7d9",
+            "rendered": "    - id: caasp_devel\n      name: caasp_devel\n      baseurl: http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "caasp_devel",
+              "repository_url": "http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/"
+            }
+          }
+        },
+        {
+          "index_key": 3,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "1bb8edbf59b9a94efa9191705a2d7df15ca0392e6ec2f3d4404e1d6a988a2d34",
+            "rendered": "    - id: containers_pool\n      name: containers_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "containers_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 4,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "4b722a5891d2f88184756b4a3955cfee609bd33b689ceb65782eb485ec5316a5",
+            "rendered": "    - id: containers_updates\n      name: containers_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "containers_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 5,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "f43ea64c68ef2ed1b6c781b57836af92d5ca39d6f3948793fc99356787acbaed",
+            "rendered": "    - id: serverapps_pool\n      name: serverapps_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "serverapps_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 6,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "b6a0ad77e4894e85b52ab043d5e2cebc99d6768c21703c462a9123b37e9d20e0",
+            "rendered": "    - id: serverapps_updates\n      name: serverapps_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "serverapps_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 7,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "d5b789f40c63709ee045783ccf180f83f6b6d06d89966d4a2126dfd9130bdef8",
+            "rendered": "    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "sle_server_pool",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/"
+            }
+          }
+        },
+        {
+          "index_key": 8,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "326a2c7b23a800558af8cdee78f3f5a9e65ee0c05d0100668b32423b3762fa04",
+            "rendered": "    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "sle_server_updates",
+              "repository_url": "http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/"
+            }
+          }
+        },
+        {
+          "index_key": 9,
+          "schema_version": 0,
+          "attributes": {
+            "filename": null,
+            "id": "af8d1994dfa867340015d3d3f0b17a78d6da60f90008031d093231e9eee1c500",
+            "rendered": "    - id: suse_ca\n      name: suse_ca\n      baseurl: http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "template": "    - id: ${repository_name}\n      name: ${repository_name}\n      baseurl: ${repository_url}\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n",
+            "vars": {
+              "repository_name": "suse_ca",
+              "repository_url": "http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_cloudinit_disk",
+      "name": "lb",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/var/lib/libvirt/images/testing-lib-cloudinit-disk;5d88e171-c65a-df37-cf35-e6d794b8d621",
+            "meta_data": "",
+            "name": "testing-lib-cloudinit-disk",
+            "network_config": "",
+            "pool": "default",
+            "user_data": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    sles:linux\n  expire: False\n\nssh_authorized_keys:\n  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: ha_pool\n      name: ha_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-HA/15/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: ha_updates\n      name: ha_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-HA/15/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\npackages:\n  - haproxy\n\nwrite_files:\n- path: /etc/haproxy/haproxy.cfg\n  content: |\n    defaults\n      timeout connect 10s\n      timeout client 86400s\n      timeout server 86400s\n\n    listen stats\n      bind    *:9000\n      mode    http\n      stats   hide-version\n      stats   uri       /stats\n\n    frontend apiserver\n      bind :6443\n      default_backend apiserver-backend\n\n    frontend gangway\n      bind :32001\n      default_backend gangway-backend\n\n    frontend dex\n      bind :32000\n      default_backend dex-backend\n\n    backend apiserver-backend\n      option httpchk GET /healthz\n      server testing-master-0.caasp.local 10.162.2.0:6443 check check-ssl verify none\n\n\n    backend gangway-backend\n      option httpchk GET /\n      server testing-master-0.caasp.local 10.162.2.0:32001 check check-ssl verify none\n\n\n    backend dex-backend\n      option httpchk GET /healthz\n      server testing-master-0.caasp.local 10.162.2.0:32000 check check-ssl verify none\n\n\nruncmd:\n  # Since we are currently inside of the cloud-init systemd unit, trying to\n  # start another service by either `enable --now` or `start` will create a\n  # deadlock. Instead, we have to use the `--no-block-` flag.\n  - [ systemctl, enable, --now, --no-block, haproxy ]\n  - [ systemctl, disable, --now, --no-block, firewalld ]\n  # The template machine should have been cleaned up, so no machine-id exists\n  - [ dbus-uuidgen, --ensure ]\n  - [ systemd-machine-id-setup ]\n  # With a new machine-id generated the journald daemon will work and can be restarted\n  # Without a new machine-id it should be in a failed state\n  - [ systemctl, restart, systemd-journald ]\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n"
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "data.template_file.lb_cloud_init_userdata[0]"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_cloudinit_disk",
+      "name": "master",
+      "each": "list",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "id": "/var/lib/libvirt/images/testing-master-cloudinit-disk-0;5d88e171-0d82-9c3f-7e50-d6758a1118cf",
+            "meta_data": "",
+            "name": "testing-master-cloudinit-disk-0",
+            "network_config": "",
+            "pool": "default",
+            "user_data": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    sles:linux\n  expire: False\n\nssh_authorized_keys:\n  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: caasp_devel\n      name: caasp_devel\n      baseurl: http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_pool\n      name: containers_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_updates\n      name: containers_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_pool\n      name: serverapps_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_updates\n      name: serverapps_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: suse_ca\n      name: suse_ca\n      baseurl: http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\n# WARNING!!! Do not use cloud-init packages module when SUSE CaaSP Registraion\n# Code is provided. In this case repositories will be added in runcmd module \n# with SUSEConnect command after packages module is ran\n#packages:\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nruncmd:\n  - [ SUSEConnect, -r, INTERNAL-USE-ONLY-256f-b760 ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, INTERNAL-USE-ONLY-256f-b760 ]\n\n\n  - [ zypper, -n, install, kernel-default, -kernel-default-base, ca-certificates-suse ]\n\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n"
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "data.template_file.master-cloud-init"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_cloudinit_disk",
+      "name": "worker",
+      "each": "list",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "id": "/var/lib/libvirt/images/testing-worker-cloudinit-disk-0;5d88e171-d760-9a71-f289-a4eb9470eb07",
+            "meta_data": "",
+            "name": "testing-worker-cloudinit-disk-0",
+            "network_config": "",
+            "pool": "default",
+            "user_data": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    sles:linux\n  expire: False\n\nssh_authorized_keys:\n  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: caasp_devel\n      name: caasp_devel\n      baseurl: http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_pool\n      name: containers_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_updates\n      name: containers_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_pool\n      name: serverapps_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_updates\n      name: serverapps_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: suse_ca\n      name: suse_ca\n      baseurl: http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\n# WARNING!!! Do not use cloud-init packages module when SUSE CaaSP Registraion\n# Code is provided. In this case repositories will be added in runcmd module \n# with SUSEConnect command after packages module is ran\n#packages:\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nruncmd:\n  - [ SUSEConnect, -r, INTERNAL-USE-ONLY-256f-b760 ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, INTERNAL-USE-ONLY-256f-b760 ]\n\n\n  - [ zypper, -n, install, kernel-default, -kernel-default-base, ca-certificates-suse ]\n\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n"
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "data.template_file.worker-cloud-init"
+          ]
+        },
+        {
+          "index_key": 1,
+          "schema_version": 0,
+          "attributes": {
+            "id": "/var/lib/libvirt/images/testing-worker-cloudinit-disk-1;5d88e171-e7c0-7edc-b3c8-3100d73bbe34",
+            "meta_data": "",
+            "name": "testing-worker-cloudinit-disk-1",
+            "network_config": "",
+            "pool": "default",
+            "user_data": "#cloud-config\n\n# set locale\nlocale: en_US.UTF-8\n\n# set timezone\ntimezone: Etc/UTC\n\n# set root password\nchpasswd:\n  list: |\n    root:linux\n    sles:linux\n  expire: False\n\nssh_authorized_keys:\n  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGVuA/6193uEtQ3/0EWwBJIEnZdOXCE+33H8afrBxngkIzUFMiNKA8lAZNlBRZp6YJKIpswKmQK1/ifIemMjsrwYpm/YMG1N9se+bZ5Gmr6d4oIVEKiT1ucsb+j3TwgzYCdhv3N8mSoGzCceef2rSSFdWNXPcACC3rUf/UiC0PSLtnq62TdqCM3nASihrqMEI0GvBXKBCWMQiy/wE++NDZKgFvYIp1b0yXzpTznZZuWdr8Qj8KajKaRJzfzMZFDjSp/coMmG8cZLf3I8jVYUYvTtDedMx/I+U5loCk7IOCGhRQj3jtAYX7Ix2neL8Xwo318lF5dwkCvua+D0j9zl6R root@compute4\n\nntp:\n  enabled: true\n  ntp_client: chrony\n  config:\n    confpath: /etc/chrony.conf\n  servers:\n    - 0.novell.pool.ntp.org\n    - 1.novell.pool.ntp.org\n    - 2.novell.pool.ntp.org\n    - 3.novell.pool.ntp.org\n\n# need to disable gpg checks because the cloud image has an untrusted repo\nzypper:\n  repos:\n    - id: basesystem_pool\n      name: basesystem_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: basesystem_updates\n      name: basesystem_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: caasp_devel\n      name: caasp_devel\n      baseurl: http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_pool\n      name: containers_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: containers_updates\n      name: containers_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_pool\n      name: serverapps_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: serverapps_updates\n      name: serverapps_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_pool\n      name: sle_server_pool\n      baseurl: http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: sle_server_updates\n      name: sle_server_updates\n      baseurl: http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n    - id: suse_ca\n      name: suse_ca\n      baseurl: http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/\n      enabled: 1\n      autorefresh: 1\n      gpgcheck: 0\n\n  config:\n    gpgcheck: \"off\"\n    solver.onlyRequires: \"true\"\n    download.use_deltarpm: \"true\"\n\n# need to remove the standard docker packages that are pre-installed on the\n# cloud image because they conflict with the kubic- ones that are pulled by\n# the kubernetes packages\n# WARNING!!! Do not use cloud-init packages module when SUSE CaaSP Registraion\n# Code is provided. In this case repositories will be added in runcmd module \n# with SUSEConnect command after packages module is ran\n#packages:\n\nbootcmd:\n  - ip link set dev eth0 mtu 1400\n  # Hostnames from DHCP - otherwise localhost will be used\n  - /usr/bin/sed -ie \"s#DHCLIENT_SET_HOSTNAME=\\\"no\\\"#DHCLIENT_SET_HOSTNAME=\\\"yes\\\"#\" /etc/sysconfig/network/dhcp\n  - netconfig update -f\n\nruncmd:\n  - [ SUSEConnect, -r, INTERNAL-USE-ONLY-256f-b760 ]\n  - [ SUSEConnect, -p, sle-module-containers/15.1/x86_64 ]\n  - [ SUSEConnect, -p, caasp/4.0/x86_64, -r, INTERNAL-USE-ONLY-256f-b760 ]\n\n\n  - [ zypper, -n, install, kernel-default, -kernel-default-base, ca-certificates-suse ]\n\n\nfinal_message: \"The system is finally up, after $UPTIME seconds\"\n"
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "data.template_file.worker-cloud-init"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_domain",
+      "name": "lb",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arch": "x86_64",
+            "autostart": false,
+            "boot_device": [],
+            "cloudinit": "/var/lib/libvirt/images/testing-lib-cloudinit-disk;5d88e171-c65a-df37-cf35-e6d794b8d621",
+            "cmdline": null,
+            "console": [],
+            "coreos_ignition": null,
+            "cpu": {
+              "mode": "host-passthrough"
+            },
+            "disk": [
+              {
+                "file": "",
+                "scsi": false,
+                "url": "",
+                "volume_id": "/var/lib/libvirt/images/testing-lb-volume",
+                "wwn": ""
+              }
+            ],
+            "emulator": "/usr/bin/qemu-system-x86_64",
+            "filesystem": [],
+            "firmware": "",
+            "graphics": [
+              {
+                "autoport": true,
+                "listen_address": "127.0.0.1",
+                "listen_type": "address",
+                "type": "vnc"
+              }
+            ],
+            "id": "d6212cf6-a6c9-4307-b2af-a9754a345131",
+            "initrd": "",
+            "kernel": "",
+            "machine": "pc",
+            "memory": 2048,
+            "metadata": null,
+            "name": "testing-lb-domain",
+            "network_interface": [
+              {
+                "addresses": [
+                  "10.162.231.209",
+                  "2620:113:80c0:8310:10:162:231:209",
+                  "fe80::5054:ff:fef6:14ae"
+                ],
+                "bridge": "br0",
+                "hostname": "",
+                "mac": "52:54:00:F6:14:AE",
+                "macvtap": "",
+                "network_id": "",
+                "network_name": "",
+                "passthrough": "",
+                "vepa": "",
+                "wait_for_lease": true
+              }
+            ],
+            "nvram": [],
+            "qemu_agent": true,
+            "running": true,
+            "timeouts": null,
+            "vcpu": 1,
+            "video": [],
+            "xml": []
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "depends_on": [
+            "libvirt_cloudinit_disk.lb",
+            "libvirt_volume.lb"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_domain",
+      "name": "master",
+      "each": "list",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "arch": "x86_64",
+            "autostart": false,
+            "boot_device": [],
+            "cloudinit": "/var/lib/libvirt/images/testing-master-cloudinit-disk-0;5d88e171-0d82-9c3f-7e50-d6758a1118cf",
+            "cmdline": null,
+            "console": [],
+            "coreos_ignition": null,
+            "cpu": {
+              "mode": "host-passthrough"
+            },
+            "disk": [
+              {
+                "file": "",
+                "scsi": false,
+                "url": "",
+                "volume_id": "/var/lib/libvirt/images/testing-master-volume-0",
+                "wwn": ""
+              }
+            ],
+            "emulator": "/usr/bin/qemu-system-x86_64",
+            "filesystem": [],
+            "firmware": "",
+            "graphics": [
+              {
+                "autoport": true,
+                "listen_address": "127.0.0.1",
+                "listen_type": "address",
+                "type": "vnc"
+              }
+            ],
+            "id": "aaaca2f8-3e34-4f43-98e3-98eed948c2f4",
+            "initrd": "",
+            "kernel": "",
+            "machine": "pc",
+            "memory": 2048,
+            "metadata": null,
+            "name": "testing-master-domain-0",
+            "network_interface": [
+              {
+                "addresses": [
+                  "10.162.231.214",
+                  "2620:113:80c0:8310:10:162:231:207",
+                  "fe80::5054:ff:fe82:bc2f"
+                ],
+                "bridge": "br0",
+                "hostname": "",
+                "mac": "52:54:00:82:BC:2F",
+                "macvtap": "",
+                "network_id": "",
+                "network_name": "",
+                "passthrough": "",
+                "vepa": "",
+                "wait_for_lease": true
+              }
+            ],
+            "nvram": [],
+            "qemu_agent": true,
+            "running": true,
+            "timeouts": null,
+            "vcpu": 2,
+            "video": [],
+            "xml": []
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "depends_on": [
+            "libvirt_cloudinit_disk.master",
+            "libvirt_domain.lb",
+            "libvirt_volume.master"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_domain",
+      "name": "worker",
+      "each": "list",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "arch": "x86_64",
+            "autostart": false,
+            "boot_device": [],
+            "cloudinit": "/var/lib/libvirt/images/testing-worker-cloudinit-disk-0;5d88e171-d760-9a71-f289-a4eb9470eb07",
+            "cmdline": null,
+            "console": [],
+            "coreos_ignition": null,
+            "cpu": {
+              "mode": "host-passthrough"
+            },
+            "disk": [
+              {
+                "file": "",
+                "scsi": false,
+                "url": "",
+                "volume_id": "/var/lib/libvirt/images/testing-worker-volume-0",
+                "wwn": ""
+              }
+            ],
+            "emulator": "/usr/bin/qemu-system-x86_64",
+            "filesystem": [],
+            "firmware": "",
+            "graphics": [
+              {
+                "autoport": true,
+                "listen_address": "127.0.0.1",
+                "listen_type": "address",
+                "type": "vnc"
+              }
+            ],
+            "id": "68c0ea7e-27e4-437c-94ef-0a025cd0bf2d",
+            "initrd": "",
+            "kernel": "",
+            "machine": "pc",
+            "memory": 2048,
+            "metadata": null,
+            "name": "testing-worker-domain-0",
+            "network_interface": [
+              {
+                "addresses": [
+                  "10.162.231.202",
+                  "2620:113:80c0:8310:10:162:231:205",
+                  "fe80::5054:ff:fef2:e312"
+                ],
+                "bridge": "br0",
+                "hostname": "",
+                "mac": "52:54:00:F2:E3:12",
+                "macvtap": "",
+                "network_id": "",
+                "network_name": "",
+                "passthrough": "",
+                "vepa": "",
+                "wait_for_lease": true
+              }
+            ],
+            "nvram": [],
+            "qemu_agent": true,
+            "running": true,
+            "timeouts": null,
+            "vcpu": 2,
+            "video": [],
+            "xml": []
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "depends_on": [
+            "libvirt_cloudinit_disk.worker",
+            "libvirt_domain.lb",
+            "libvirt_volume.worker"
+          ]
+        },
+        {
+          "index_key": 1,
+          "schema_version": 0,
+          "attributes": {
+            "arch": "x86_64",
+            "autostart": false,
+            "boot_device": [],
+            "cloudinit": "/var/lib/libvirt/images/testing-worker-cloudinit-disk-1;5d88e171-e7c0-7edc-b3c8-3100d73bbe34",
+            "cmdline": null,
+            "console": [],
+            "coreos_ignition": null,
+            "cpu": {
+              "mode": "host-passthrough"
+            },
+            "disk": [
+              {
+                "file": "",
+                "scsi": false,
+                "url": "",
+                "volume_id": "/var/lib/libvirt/images/testing-worker-volume-1",
+                "wwn": ""
+              }
+            ],
+            "emulator": "/usr/bin/qemu-system-x86_64",
+            "filesystem": [],
+            "firmware": "",
+            "graphics": [
+              {
+                "autoport": true,
+                "listen_address": "127.0.0.1",
+                "listen_type": "address",
+                "type": "vnc"
+              }
+            ],
+            "id": "90413ad7-4edf-40fd-8c3a-406fd4cd4a37",
+            "initrd": "",
+            "kernel": "",
+            "machine": "pc",
+            "memory": 2048,
+            "metadata": null,
+            "name": "testing-worker-domain-1",
+            "network_interface": [
+              {
+                "addresses": [
+                  "10.162.231.215",
+                  "2620:113:80c0:8310:10:162:231:242",
+                  "fe80::5054:ff:fe96:cb30"
+                ],
+                "bridge": "br0",
+                "hostname": "",
+                "mac": "52:54:00:96:CB:30",
+                "macvtap": "",
+                "network_id": "",
+                "network_name": "",
+                "passthrough": "",
+                "vepa": "",
+                "wait_for_lease": true
+              }
+            ],
+            "nvram": [],
+            "qemu_agent": true,
+            "running": true,
+            "timeouts": null,
+            "vcpu": 2,
+            "video": [],
+            "xml": []
+          },
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDB9fQ==",
+          "depends_on": [
+            "libvirt_cloudinit_disk.worker",
+            "libvirt_domain.lb",
+            "libvirt_volume.worker"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_volume",
+      "name": "img",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "base_volume_id": null,
+            "base_volume_name": null,
+            "base_volume_pool": null,
+            "format": "qcow2",
+            "id": "/var/lib/libvirt/images/testing-SLES15-SP1-JeOS.x86_64-15.1-OpenStack-Cloud-GM_mod.qcow2",
+            "name": "testing-SLES15-SP1-JeOS.x86_64-15.1-OpenStack-Cloud-GM_mod.qcow2",
+            "pool": "default",
+            "size": 905969664,
+            "source": "SLES15-SP1-JeOS.x86_64-15.1-OpenStack-Cloud-GM_mod.qcow2",
+            "xml": []
+          },
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_volume",
+      "name": "lb",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "base_volume_id": "/var/lib/libvirt/images/testing-SLES15-SP1-JeOS.x86_64-15.1-OpenStack-Cloud-GM_mod.qcow2",
+            "base_volume_name": null,
+            "base_volume_pool": null,
+            "format": "qcow2",
+            "id": "/var/lib/libvirt/images/testing-lb-volume",
+            "name": "testing-lb-volume",
+            "pool": "default",
+            "size": 25769803776,
+            "source": null,
+            "xml": []
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_volume.img"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_volume",
+      "name": "master",
+      "each": "list",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "base_volume_id": "/var/lib/libvirt/images/testing-SLES15-SP1-JeOS.x86_64-15.1-OpenStack-Cloud-GM_mod.qcow2",
+            "base_volume_name": null,
+            "base_volume_pool": null,
+            "format": "qcow2",
+            "id": "/var/lib/libvirt/images/testing-master-volume-0",
+            "name": "testing-master-volume-0",
+            "pool": "default",
+            "size": 25769803776,
+            "source": null,
+            "xml": []
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_volume.img"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "libvirt_volume",
+      "name": "worker",
+      "each": "list",
+      "provider": "provider.libvirt",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "base_volume_id": "/var/lib/libvirt/images/testing-SLES15-SP1-JeOS.x86_64-15.1-OpenStack-Cloud-GM_mod.qcow2",
+            "base_volume_name": null,
+            "base_volume_pool": null,
+            "format": "qcow2",
+            "id": "/var/lib/libvirt/images/testing-worker-volume-0",
+            "name": "testing-worker-volume-0",
+            "pool": "default",
+            "size": 25769803776,
+            "source": null,
+            "xml": []
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_volume.img"
+          ]
+        },
+        {
+          "index_key": 1,
+          "schema_version": 0,
+          "attributes": {
+            "base_volume_id": "/var/lib/libvirt/images/testing-SLES15-SP1-JeOS.x86_64-15.1-OpenStack-Cloud-GM_mod.qcow2",
+            "base_volume_name": null,
+            "base_volume_pool": null,
+            "format": "qcow2",
+            "id": "/var/lib/libvirt/images/testing-worker-volume-1",
+            "name": "testing-worker-volume-1",
+            "pool": "default",
+            "size": 25769803776,
+            "source": null,
+            "xml": []
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_volume.img"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "lb_reboot",
+      "each": "list",
+      "provider": "provider.null",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "id": "9118138754672115426",
+            "triggers": null
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_domain.lb",
+            "null_resource.lb_wait_cloudinit"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "lb_wait_cloudinit",
+      "each": "list",
+      "provider": "provider.null",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "id": "5994668905946484342",
+            "triggers": null
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_domain.lb"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "master_reboot",
+      "each": "list",
+      "provider": "provider.null",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "id": "8880901781404173887",
+            "triggers": null
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_domain.master",
+            "null_resource.master_wait_cloudinit"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "master_wait_cloudinit",
+      "each": "list",
+      "provider": "provider.null",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "id": "6456239743282461669",
+            "triggers": null
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_domain.master"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "worker_reboot",
+      "each": "list",
+      "provider": "provider.null",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "id": "4117466358695547282",
+            "triggers": null
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_domain.worker",
+            "null_resource.worker_wait_cloudinit"
+          ]
+        },
+        {
+          "index_key": 1,
+          "schema_version": 0,
+          "attributes": {
+            "id": "1260198429775518268",
+            "triggers": null
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_domain.worker",
+            "null_resource.worker_wait_cloudinit"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "worker_wait_cloudinit",
+      "each": "list",
+      "provider": "provider.null",
+      "instances": [
+        {
+          "index_key": 0,
+          "schema_version": 0,
+          "attributes": {
+            "id": "3064170761225073988",
+            "triggers": null
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_domain.worker"
+          ]
+        },
+        {
+          "index_key": 1,
+          "schema_version": 0,
+          "attributes": {
+            "id": "8831061785736955898",
+            "triggers": null
+          },
+          "private": "bnVsbA==",
+          "depends_on": [
+            "libvirt_domain.worker"
+          ]
+        }
+      ]
+    }
+  ]
+}
