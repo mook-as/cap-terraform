@@ -7,3 +7,4 @@ scf*/
 **/*cluster-plan/*
 *.tfvars
 temp/*
+SLES15*.qcow2
