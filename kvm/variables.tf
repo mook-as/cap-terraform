@@ -94,6 +94,12 @@ variable "network_cidr" {
   description = "Network used by the cluster"
 }
 
+variable "network2_cidr" {
+  type        = string
+  default     = "10.17.0.0/22"
+  description = "Network used by the cluster"
+}
+
 variable "network_mode" {
   type        = string
   default     = "bridge"
@@ -156,4 +162,3 @@ variable "worker_vcpu" {
   default     = 2
   description = "Amount of virtual CPUs for a worker"
 }
-

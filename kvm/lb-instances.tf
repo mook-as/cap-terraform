@@ -14,7 +14,7 @@ data "template_file" "haproxy_apiserver_backends_master" {
 
   vars = {
     fqdn = "${var.stack_name}-master-${count.index}.${var.dns_domain}"
-    ip   = "${cidrhost(var.network_cidr, 512 + count.index)}"
+    ip   = "${cidrhost(var.network_cidr, 115 + count.index)}"
   }
 }
 
@@ -24,7 +24,7 @@ data "template_file" "haproxy_gangway_backends_master" {
 
   vars = {
     fqdn = "${var.stack_name}-master-${count.index}.${var.dns_domain}"
-    ip   = "${cidrhost(var.network_cidr, 512 + count.index)}"
+    ip   = "${cidrhost(var.network_cidr, 115 + count.index)}"
   }
 }
 
@@ -34,7 +34,7 @@ data "template_file" "haproxy_dex_backends_master" {
 
   vars = {
     fqdn = "${var.stack_name}-master-${count.index}.${var.dns_domain}"
-    ip   = "${cidrhost(var.network_cidr, 512 + count.index)}"
+    ip   = "${cidrhost(var.network_cidr, 115 + count.index)}"
   }
 }
 
@@ -140,7 +140,7 @@ resource "null_resource" "lb_reboot" {
 
     command = <<EOT
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host 'sleep 2 && sudo nohup shutdown -r now > /dev/null 2>&1 &'
-sleep 10
+sleep 20
 # wait for ssh ready after reboot
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oConnectionAttempts=60 $user@$host /usr/bin/true
 EOT

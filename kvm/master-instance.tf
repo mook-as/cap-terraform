@@ -87,6 +87,8 @@ resource "libvirt_domain" "master" {
     hostname       = "${var.stack_name}-master-${count.index}"
     wait_for_lease = true 
     bridge	   = "${var.bridge_name}" 
+    addresses      = [cidrhost(var.network_cidr, 115 + count.index)]
+    mac            = "52:54:00:db:04:0${count.index + 5}"
   }
 
   graphics {
@@ -132,7 +134,7 @@ resource "null_resource" "master_reboot" {
     command = <<EOT
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host 'sleep 2 && sudo nohup shutdown -r now > /dev/null 2>&1 &' 
 # wait for ssh ready after reboot
-sleep 10
+sleep 20
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oConnectionAttempts=60 $user@$host /usr/bin/true
 EOT
 

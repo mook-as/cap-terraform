@@ -3,7 +3,7 @@
 # - register against local SUSE Repository Mirroring Server
 
 # SUSE CaaSP Product Registration Code
-#caasp_registry_code = ""
+caasp_registry_code = "INTERNAL-USE-ONLY-256f-b760"
 
 # SUSE Repository Mirroring Server Name (FQDN)
 #rmt_server_name = "rmt.example.com"
