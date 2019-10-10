@@ -153,11 +153,11 @@ EOT
   }
 }
 
-resource "null_resource" "lb_eth1" {
-  depends_on = [null_resource.lb_wait_cloudinit]
-
-  provisioner "file" {
-    source      = "config/ifcfg-eth1"
-    destination = "/etc/sysconfig/network/ifcfg-eth1"
-  }
-}
+#resource "null_resource" "lb_eth1" {
+#  depends_on = [null_resource.lb_wait_cloudinit]
+#
+#  provisioner "file" {
+#    source      = "config/ifcfg-eth1"
+#    destination = "/etc/sysconfig/network/ifcfg-eth1"
+#  }
+#}
