@@ -77,6 +77,11 @@ variable "disk_size" {
   description = "Disk size (in bytes)"
 }
 
+variable "worker_disk_size" {
+  default     = "100000000000"
+  description = "Disk size (in bytes)"
+}
+
 variable "dns_domain" {
   type        = string
   default     = "caasp.local"
