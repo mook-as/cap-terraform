@@ -99,11 +99,8 @@ resource "libvirt_domain" "lb" {
   }
 
   network_interface {
-#    hostname       = "${var.stack_name}-worker-${count.index}"
-#    wait_for_lease = true
     bridge         = "${var.bridge_name}"
-    mac            = "52:54:00:db:04:05"
-#    addresses      = [cidrhost(var.network_cidr,  117 + count.index)]
+    mac            = var.lb_mac 
   }
 
 

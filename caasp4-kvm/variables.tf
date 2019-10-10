@@ -157,3 +157,7 @@ variable "bridge_name" {
   description = "Bridge to connect the loadbalancer to"
 }
 
+variable "lb_mac" {
+  default     = "52:54:00:db:04:05"
+  description = "MAC address for the external bridged network interface of the loadbalancer"
+}
