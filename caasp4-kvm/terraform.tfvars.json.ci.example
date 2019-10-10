@@ -7,6 +7,10 @@
     "dns_domain": "caasp.local",
     "masters": 1,
     "workers": 2,
+    "worker_memory": 40960,
+    "worker_vcpu": 2,
+    "bridge": br0,
+    "lb_mac": "52:54:00:db:04:05",
     "username": "sles",
     "password": "linux",
     "repositories": {
