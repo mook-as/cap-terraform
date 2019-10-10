@@ -83,11 +83,6 @@ variable "dns_domain" {
   description = "Name of DNS Domain"
 }
 
-variable "bridge_name" {
-  type	      = string
-  default     = "br0"
-}
-
 variable "network_cidr" {
   type        = string
   default     = "10.17.0.0/22"
@@ -96,7 +91,7 @@ variable "network_cidr" {
 
 variable "network_mode" {
   type        = string
-  default     = "bridge"
+  default     = "nat"
   description = "Network mode used by the cluster"
 }
 
@@ -155,5 +150,10 @@ variable "worker_memory" {
 variable "worker_vcpu" {
   default     = 2
   description = "Amount of virtual CPUs for a worker"
+}
+
+variable "bridge_name" {
+  default     = "br0"
+  description = "Bridge to connect the loadbalancer to"
 }
 

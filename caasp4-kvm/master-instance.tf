@@ -73,7 +73,6 @@ resource "libvirt_domain" "master" {
   vcpu       = var.master_vcpu
   cloudinit  = element(libvirt_cloudinit_disk.master.*.id, count.index)
   depends_on = [libvirt_domain.lb]
-  qemu_agent = true
 
   cpu = {
     mode = "host-passthrough"
@@ -84,9 +83,10 @@ resource "libvirt_domain" "master" {
   }
 
   network_interface {
+    network_id     = libvirt_network.network.id
     hostname       = "${var.stack_name}-master-${count.index}"
+    addresses      = [cidrhost(var.network_cidr, 512 + count.index)]
     wait_for_lease = true 
-    bridge	   = "${var.bridge_name}" 
   }
 
   graphics {
@@ -130,9 +130,8 @@ resource "null_resource" "master_reboot" {
     }
 
     command = <<EOT
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host 'sleep 2 && sudo nohup shutdown -r now > /dev/null 2>&1 &' 
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
 # wait for ssh ready after reboot
-sleep 10
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oConnectionAttempts=60 $user@$host /usr/bin/true
 EOT
 

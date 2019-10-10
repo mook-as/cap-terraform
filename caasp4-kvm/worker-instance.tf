@@ -73,7 +73,6 @@ resource "libvirt_domain" "worker" {
   vcpu       = var.worker_vcpu
   cloudinit  = element(libvirt_cloudinit_disk.worker.*.id, count.index)
   depends_on = [libvirt_domain.lb]
-  qemu_agent = true
 
   cpu = {
     mode = "host-passthrough"
@@ -84,9 +83,10 @@ resource "libvirt_domain" "worker" {
   }
 
   network_interface {
+    network_id     = libvirt_network.network.id
     hostname       = "${var.stack_name}-worker-${count.index}"
-    wait_for_lease = true
-    bridge         = "${var.bridge_name}"
+    addresses      = [cidrhost(var.network_cidr, 768 + count.index)]
+    wait_for_lease = true 
   }
 
   graphics {
@@ -130,9 +130,8 @@ resource "null_resource" "worker_reboot" {
     }
 
     command = <<EOT
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host 'sleep 2 && sudo nohup shutdown -r now > /dev/null 2>&1 &'
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
 # wait for ssh ready after reboot
-sleep 10
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oConnectionAttempts=60 $user@$host /usr/bin/true
 EOT
 

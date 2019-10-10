@@ -14,7 +14,7 @@ data "template_file" "haproxy_apiserver_backends_master" {
 
   vars = {
     fqdn = "${var.stack_name}-master-${count.index}.${var.dns_domain}"
-    ip   = "${cidrhost(var.network_cidr, 512 + count.index)}"
+    ip   = cidrhost(var.network_cidr, 512 + count.index)
   }
 }
 
@@ -24,7 +24,7 @@ data "template_file" "haproxy_gangway_backends_master" {
 
   vars = {
     fqdn = "${var.stack_name}-master-${count.index}.${var.dns_domain}"
-    ip   = "${cidrhost(var.network_cidr, 512 + count.index)}"
+    ip   = cidrhost(var.network_cidr, 512 + count.index)
   }
 }
 
@@ -34,7 +34,7 @@ data "template_file" "haproxy_dex_backends_master" {
 
   vars = {
     fqdn = "${var.stack_name}-master-${count.index}.${var.dns_domain}"
-    ip   = "${cidrhost(var.network_cidr, 512 + count.index)}"
+    ip   = cidrhost(var.network_cidr, 512 + count.index)
   }
 }
 
@@ -82,7 +82,6 @@ resource "libvirt_domain" "lb" {
   memory    = var.lb_memory
   vcpu      = var.lb_vcpu
   cloudinit = libvirt_cloudinit_disk.lb.id
-  qemu_agent = true
 
   cpu = {
     mode = "host-passthrough"
@@ -93,10 +92,20 @@ resource "libvirt_domain" "lb" {
   }
 
   network_interface {
+    network_id     = libvirt_network.network.id
     hostname       = "${var.stack_name}-lb"
-    wait_for_lease = true
-    bridge         = "${var.bridge_name}"
+    addresses      = [cidrhost(var.network_cidr, 256)]
+    wait_for_lease = true 
   }
+
+  network_interface {
+#    hostname       = "${var.stack_name}-worker-${count.index}"
+#    wait_for_lease = true
+    bridge         = "${var.bridge_name}"
+    mac            = "52:54:00:db:04:05"
+#    addresses      = [cidrhost(var.network_cidr,  117 + count.index)]
+  }
+
 
   graphics {
     type        = "vnc"
@@ -139,8 +148,7 @@ resource "null_resource" "lb_reboot" {
     }
 
     command = <<EOT
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host 'sleep 2 && sudo nohup shutdown -r now > /dev/null 2>&1 &'
-sleep 10
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
 # wait for ssh ready after reboot
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oConnectionAttempts=60 $user@$host /usr/bin/true
 EOT
