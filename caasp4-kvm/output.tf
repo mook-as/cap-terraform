@@ -1,5 +1,13 @@
-output "ip_load_balancer" {
+data "external" "external_interface" {
+  program = ["/bin/bash", "scripts/get_external_ip.sh"]
+}
+
+output "ip_load_balancer-internal" {
   value = libvirt_domain.lb.network_interface[0].addresses[0]
+}
+
+output "ip_load_balancer-external" {
+  value = "${element(split(",", data.external.external_interface.result["address"]), 0)}" 
 }
 
 output "ip_masters" {

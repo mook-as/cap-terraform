@@ -53,7 +53,7 @@ data "template_file" "worker-cloud-init" {
 resource "libvirt_volume" "worker" {
   name           = "${var.stack_name}-worker-volume-${count.index}"
   pool           = var.pool
-  size           = var.worker_disk_size
+  size           = var.disk_size
   base_volume_id = libvirt_volume.img.id
   count          = var.workers
 }
@@ -130,6 +130,8 @@ resource "null_resource" "worker_reboot" {
     }
 
     command = <<EOT
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo sed --in-place --regexp-extended 's|^(GRUB_CMDLINE_LINUX_DEFAULT=)\"(.*.)\"|\1\"\2 swapaccount=1\"|' /etc/default/grub
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo update-bootloader
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
 # wait for ssh ready after reboot
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oConnectionAttempts=60 $user@$host /usr/bin/true
