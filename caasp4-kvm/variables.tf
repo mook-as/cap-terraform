@@ -73,7 +73,12 @@ variable "rmt_server_name" {
 }
 
 variable "disk_size" {
-  default     = "25769803776"
+  default     = "41000000000"
+  description = "Disk size (in bytes)"
+}
+
+variable "worker_disk_size" {
+  default     = "100000000000"
   description = "Disk size (in bytes)"
 }
 

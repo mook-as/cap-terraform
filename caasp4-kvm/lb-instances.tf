@@ -82,6 +82,7 @@ resource "libvirt_domain" "lb" {
   memory    = var.lb_memory
   vcpu      = var.lb_vcpu
   cloudinit = libvirt_cloudinit_disk.lb.id
+  qemu_agent = true
 
   cpu = {
     mode = "host-passthrough"
@@ -145,19 +146,13 @@ resource "null_resource" "lb_reboot" {
     }
 
     command = <<EOT
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null config/ifcfg-eth1 $user@$host:/tmp
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo mv /tmp/ifcfg-eth1 /etc/sysconfig/network/
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
 # wait for ssh ready after reboot
+sleep 20
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oConnectionAttempts=60 $user@$host /usr/bin/true
 EOT
 
-  }
-}
-
-resource "null_resource" "lb_eth1" {
-  depends_on = [null_resource.lb_wait_cloudinit]
-
-  provisioner "file" {
-    source      = "config/ifcfg-eth1"
-    destination = "/etc/sysconfig/network/ifcfg-eth1"
   }
 }
