@@ -1,0 +1,60 @@
+{
+    "libvirt_uri": "qemu:///system",
+    "pool": "default",
+    "image_uri": "/root/images/SLES15-SP1-JeOS.x86_64-15.1-OpenStack-Cloud-GM_mod.qcow2",
+    "stack_name": "tf5-c4",
+    "dns_domain": "caasp.local",
+    "bridge_name": "br0",
+    "network_cidr": "10.16.0.0/22",
+    "ip_master0": "10.16.2.0",
+    "ip_worker0": "10.16.3.0",
+    "ip_worker1": "10.16.3.1",
+    "lb_ext_mac": "52:54:00:db:00:01",
+    "master0_ext_mac": "52:54:00:db:00:02",
+    "worker0_ext_mac": "52:54:00:db:00:03",
+    "worker1_ext_mac": "52:54:00:db:00:04",
+    "masters": 1,
+    "workers": 2,
+    "disk_size": 21474836480,
+    "master_vcpu": 4,
+    "master_memory": 8192,
+    "master_disk_size": 64424509440,
+    "worker_vcpu": 16,
+    "worker_memory": 32768,
+    "worker_disk_size": 107374182400,
+    "username": "sles",
+    "password": "linux",
+    "repositories": {
+        "caasp_devel": "http://download.suse.de/ibs/Devel:/CaaSP:/4.0/SLE_15_SP1/",
+        "suse_ca": "http://download.suse.de/ibs/SUSE:/CA/SLE_15_SP1/",
+        "sle_server_pool": "http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/",
+        "basesystem_pool": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/",
+        "containers_pool": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Containers/15-SP1/x86_64/product/",
+        "serverapps_pool": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Server-Applications/15-SP1/x86_64/product/",
+        "sle_server_updates": "http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/",
+        "basesystem_updates": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/",
+        "containers_updates": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Containers/15-SP1/x86_64/update/",
+        "serverapps_updates": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Server-Applications/15-SP1/x86_64/update/"
+    },
+    "lb_repositories": {
+        "sle_server_pool": "http://download.suse.de/ibs/SUSE/Products/SLE-Product-SLES/15-SP1/x86_64/product/",
+        "basesystem_pool": "http://download.suse.de/ibs/SUSE/Products/SLE-Module-Basesystem/15-SP1/x86_64/product/",
+        "ha_pool": "http://download.suse.de/ibs/SUSE/Products/SLE-Product-HA/15-SP1/x86_64/product/",
+        "ha_updates": "http://download.suse.de/ibs/SUSE/Updates/SLE-Product-HA/15-SP1/x86_64/update/",
+        "sle_server_updates": "http://download.suse.de/ibs/SUSE/Updates/SLE-Product-SLES/15-SP1/x86_64/update/",
+        "basesystem_updates": "http://download.suse.de/ibs/SUSE/Updates/SLE-Module-Basesystem/15-SP1/x86_64/update/"
+    },
+    "packages": [
+        "kernel-default",
+        "-kernel-default-base",
+        "ca-certificates-suse",
+        "nfs-client"
+    ],
+    "authorized_keys": ["<ssh-rsa>"],
+    "ntp_servers": [
+        "0.novell.pool.ntp.org",
+        "1.novell.pool.ntp.org",
+        "2.novell.pool.ntp.org",
+        "3.novell.pool.ntp.org"
+    ]
+}
