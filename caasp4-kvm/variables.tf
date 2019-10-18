@@ -73,12 +73,17 @@ variable "rmt_server_name" {
 }
 
 variable "disk_size" {
-  default     = "41000000000"
+  default     = "21474836480"
+  description = "Disk size (in bytes)"
+}
+
+variable "master_disk_size" {
+  default     = "64424509440"
   description = "Disk size (in bytes)"
 }
 
 variable "worker_disk_size" {
-  default     = "100000000000"
+  default     = "107374182400"
   description = "Disk size (in bytes)"
 }
 
@@ -90,7 +95,7 @@ variable "dns_domain" {
 
 variable "network_cidr" {
   type        = string
-  default     = "10.17.0.0/22"
+  default     = "10.16.0.0/22"
   description = "Network used by the cluster"
 }
 
