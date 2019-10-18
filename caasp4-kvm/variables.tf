@@ -186,3 +186,18 @@ variable "worker1_ext_mac" {
   default     = "52:54:00:db:00:04"
   description = "MAC address for the external bridged network interface of worker2"
 }
+
+variable "ip_master0" {
+  default     = "10.16.2.0"
+  description = "Internal IP of first master for haproxy"
+}
+
+variable "ip_worker0" {
+  default     = "10.16.3.0"
+  description = "Internal IP of first worker for haproxy"
+}
+
+variable "ip_worker1" {
+  default     = "10.16.3.1"
+  description = "Internal IP of second worker for haproxy"
+}

@@ -53,6 +53,118 @@ write_files:
       stats   hide-version
       stats   uri       /stats
 
+    listen cap-80
+      bind   *:80
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:80
+      server ${ip_worker0} ${ip_worker0}:80
+      server ${ip_worker1} ${ip_worker1}:80
+
+    listen cap-443
+      bind   *:443
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:443
+      server ${ip_worker0} ${ip_worker0}:443
+      server ${ip_worker1} ${ip_worker1}:443
+
+    listen cap-2222
+      bind   *:2222
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:2222
+      server ${ip_worker0} ${ip_worker0}:2222
+      server ${ip_worker1} ${ip_worker1}:2222
+
+    listen cap-2793
+      bind   *:2793
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:2793
+      server ${ip_worker0} ${ip_worker0}:2793
+      server ${ip_worker1} ${ip_worker1}:2793
+
+    listen cap-4443
+      bind   *:4443
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:4443
+      server ${ip_worker0} ${ip_worker0}:4443
+      server ${ip_worker1} ${ip_worker1}:4443
+
+    listen cap-8443
+      bind   *:8443
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:8443
+      server ${ip_worker0} ${ip_worker0}:8443
+      server ${ip_worker1} ${ip_worker1}:8443
+
+    listen cap-20000
+      bind   *:20000
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20000
+      server ${ip_worker0} ${ip_worker0}:20000
+      server ${ip_worker1} ${ip_worker1}:20000
+
+    listen cap-20001
+      bind   *:20001
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20001
+      server ${ip_worker0} ${ip_worker0}:20001
+      server ${ip_worker1} ${ip_worker1}:20001
+
+    listen cap-20002
+      bind   *:20002
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20002
+      server ${ip_worker0} ${ip_worker0}:20002
+      server ${ip_worker1} ${ip_worker1}:20002
+
+    listen cap-20003
+      bind   *:20003
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20003
+      server ${ip_worker0} ${ip_worker0}:20003
+      server ${ip_worker1} ${ip_worker1}:20003
+
+    listen cap-20004
+      bind   *:20004
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20004
+      server ${ip_worker0} ${ip_worker0}:20004
+      server ${ip_worker1} ${ip_worker1}:20004
+
+    listen cap-20005
+      bind   *:20005
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20005
+      server ${ip_worker0} ${ip_worker0}:20005
+      server ${ip_worker1} ${ip_worker1}:20005
+
+    listen cap-20006
+      bind   *:20006
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20006
+      server ${ip_worker0} ${ip_worker0}:20006
+      server ${ip_worker1} ${ip_worker1}:20006
+
+    listen cap-20007
+      bind   *:20007
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20007
+      server ${ip_worker0} ${ip_worker0}:20007
+      server ${ip_worker1} ${ip_worker1}:20007
+
+    listen cap-20008
+      bind   *:20008
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20008
+      server ${ip_worker0} ${ip_worker0}:20008
+      server ${ip_worker1} ${ip_worker1}:20008
+
+    listen cap-20009
+      bind   *:20009
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:20009
+      server ${ip_worker0} ${ip_worker0}:20009
+      server ${ip_worker1} ${ip_worker1}:20009
+
     frontend apiserver
       bind :6443
       default_backend apiserver-backend

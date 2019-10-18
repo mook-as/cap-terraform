@@ -60,6 +60,9 @@ data "template_file" "lb_cloud_init_userdata" {
     username        = var.username
     password        = var.password
     ntp_servers     = join("\n", formatlist("    - %s", var.ntp_servers))
+    ip_master0     = var.ip_master0
+    ip_worker0     = var.ip_worker0
+    ip_worker1     = var.ip_worker1
   }
 }
 
