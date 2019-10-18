@@ -1,5 +1,12 @@
 data "external" "external_interface" {
   program = ["/bin/bash", "scripts/get_external_ip.sh"]
+  query = {
+    id = libvirt_domain.lb.name
+  }
+}
+
+output "cluster_stack_name" {
+  value = var.stack_name
 }
 
 output "ip_load_balancer-internal" {
