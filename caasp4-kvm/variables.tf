@@ -167,7 +167,22 @@ variable "bridge_name" {
   description = "Bridge to connect the loadbalancer to"
 }
 
-variable "lb_mac" {
-  default     = "52:54:00:db:04:05"
+variable "lb_ext_mac" {
+  default     = "52:54:00:db:00:01"
   description = "MAC address for the external bridged network interface of the loadbalancer"
+}
+
+variable "master0_ext_mac" {
+  default     = "52:54:00:db:00:02"
+  description = "MAC address for the external bridged network interface of master1"
+}
+
+variable "worker0_ext_mac" {
+  default     = "52:54:00:db:00:03"
+  description = "MAC address for the external bridged network interface of worker1"
+}
+
+variable "worker1_ext_mac" {
+  default     = "52:54:00:db:00:04"
+  description = "MAC address for the external bridged network interface of worker2"
 }

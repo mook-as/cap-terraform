@@ -91,7 +91,7 @@ resource "libvirt_domain" "worker" {
 
   network_interface {
     bridge         = "${var.bridge_name}"
-    mac            = format("52:54:00:db:04:0%d", 7 + count.index)
+    mac            = count.index == 0 ?  var.worker0_ext_mac : var.worker1_ext_mac
   }
 
   graphics {

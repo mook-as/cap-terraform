@@ -101,7 +101,7 @@ resource "libvirt_domain" "lb" {
 
   network_interface {
     bridge         = "${var.bridge_name}"
-    mac            = var.lb_mac 
+    mac            = var.lb_ext_mac
   }
 
 

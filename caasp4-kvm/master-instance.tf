@@ -91,7 +91,7 @@ resource "libvirt_domain" "master" {
 
   network_interface {
     bridge         = "${var.bridge_name}"
-    mac            = "52:54:00:db:04:06"
+    mac            = var.master0_ext_mac
   }
 
   graphics {
