@@ -151,7 +151,7 @@ ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
 # wait for ssh ready after reboot
 sleep 20
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -oConnectionAttempts=60 $user@$host /usr/bin/true
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectionAttempts=60 $user@$host /usr/bin/true
 EOT
 
   }
