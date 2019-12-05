@@ -50,6 +50,7 @@ bootcmd:
 runcmd:
 ${register_scc}
 ${register_rmt}
+${register_ibs}
 ${commands}
 
 final_message: "The system is finally up, after $UPTIME seconds"

@@ -1,0 +1,3 @@
+  - /usr/sbin/update-ca-certificates &> /dev/null
+  - zypper in -y -l --auto-agree-with-product-licenses caasp-release caasp &> /dev/null
+  - zypper in -y -l -t pattern SUSE-CaaSP-Node &> /dev/null
