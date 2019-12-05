@@ -26,6 +26,10 @@ data "template_file" "worker_register_rmt" {
   }
 }
 
+data "template_file" "worker_register_ibs" {
+  template = file("cloud-init/register-ibs.tpl")
+}
+
 data "template_file" "worker_commands" {
   template = file("cloud-init/commands.tpl")
   count    = join("", var.packages) == "" ? 0 : 1
@@ -43,6 +47,7 @@ data "template_file" "worker-cloud-init" {
     repositories    = join("\n", data.template_file.worker_repositories.*.rendered)
     register_scc    = join("\n", data.template_file.worker_register_scc.*.rendered)
     register_rmt    = join("\n", data.template_file.worker_register_rmt.*.rendered)
+    register_ibs    = join("\n", data.template_file.worker_register_ibs.*.rendered)
     commands        = join("\n", data.template_file.worker_commands.*.rendered)
     username        = var.username
     password        = var.password
