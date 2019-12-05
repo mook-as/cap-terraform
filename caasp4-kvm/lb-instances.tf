@@ -151,6 +151,7 @@ resource "null_resource" "lb_reboot" {
     command = <<EOT
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null config/ifcfg-eth1 $user@$host:/tmp
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo mv /tmp/ifcfg-eth1 /etc/sysconfig/network/
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo zypper up -y -l --auto-agree-with-product-licenses 2>&1>/dev/null"
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
 # wait for ssh ready after reboot
 sleep 20
