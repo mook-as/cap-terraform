@@ -83,6 +83,13 @@ write_files:
       server ${ip_worker0} ${ip_worker0}:4443
       server ${ip_worker1} ${ip_worker1}:4443
 
+    listen cap-7443
+      bind   *:7443
+      option httpchk GET /healthz
+      server ${ip_master0} ${ip_master0}:7443
+      server ${ip_worker0} ${ip_worker0}:7443
+      server ${ip_worker1} ${ip_worker1}:7443
+
     listen cap-8443
       bind   *:8443
       server ${ip_master0} ${ip_master0}:8443
