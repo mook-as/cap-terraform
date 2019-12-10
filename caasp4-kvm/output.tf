@@ -26,3 +26,4 @@ output "ip_masters" {
 
 output "ip_workers" {
   value = [libvirt_domain.worker.*.network_interface.0.addresses.0]
+}
