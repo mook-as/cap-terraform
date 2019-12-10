@@ -1,5 +1,5 @@
 #!/bin/sh
 
-address=\"0.0.0.0\"
-out=$(virsh qemu-agent-command $1 '{"execute":"guest-network-get-interfaces"}') && address=$(echo ${out} | jq '. | .return[2]."ip-addresses"[0]."ip-address"') 
+out=$(virsh qemu-agent-command $1 '{"execute":"guest-network-get-interfaces"}')
+: "${address:=$(echo $out | grep -o -e 'eth1'.*.'ipv4'.*.'"prefix":24' | grep -o -e '"'.[0-9].'.'.*.'.'.[0-9].'"')}" "${address:=\"0.0.0.0\"}"
 echo -n "{\"address\":${address}}"
