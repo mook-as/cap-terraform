@@ -121,7 +121,7 @@ resource "null_resource" "master_wait_cloudinit" {
   }
 }
 
-resource "null_resource" "master_reboot" {
+resource "null_resource" "master_swapaccount" {
   depends_on = [null_resource.master_wait_cloudinit]
   count      = var.masters
 
@@ -137,12 +137,46 @@ resource "null_resource" "master_reboot" {
     command = <<EOT
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo sed --in-place --regexp-extended 's|^(GRUB_CMDLINE_LINUX_DEFAULT=)\"(.*.)\"|\1\"\2 swapaccount=1\"|' /etc/default/grub"
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo update-bootloader
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo zypper up -y -l --auto-agree-with-product-licenses 2>&1>/dev/null"
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
-# wait for ssh ready after reboot
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectionAttempts=60 $user@$host /usr/bin/true
 EOT
-
   }
 }
 
+resource "null_resource" "master_zypperup" {
+  depends_on = [null_resource.master_swapaccount]
+  count      = var.masters
+
+  provisioner "local-exec" {
+    environment = {
+      user = var.username
+      host = element(
+        libvirt_domain.master.*.network_interface.0.addresses.0,
+        count.index,
+      )
+    }
+
+    command = <<EOT
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo zypper up -y -l --auto-agree-with-product-licenses 2>&1>/dev/null"
+EOT
+  }
+}
+
+resource "null_resource" "master_reboot" {
+  depends_on = [null_resource.master_zypperup]
+  count      = var.masters
+
+  provisioner "local-exec" {
+    environment = {
+      user = var.username
+      host = element(
+        libvirt_domain.master.*.network_interface.0.addresses.0,
+        count.index,
+      )
+    }
+
+    command = <<EOT
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
+# wait for ssh ready after reboot
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectionAttempts=80 $user@$host /usr/bin/true
+EOT
+  }
+}

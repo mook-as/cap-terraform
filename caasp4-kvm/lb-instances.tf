@@ -135,8 +135,28 @@ resource "null_resource" "lb_wait_cloudinit" {
   }
 }
 
-resource "null_resource" "lb_reboot" {
+resource "null_resource" "lb_exteth1" {
   depends_on = [null_resource.lb_wait_cloudinit]
+  count      = var.lbs
+
+  provisioner "local-exec" {
+    environment = {
+      user = var.username
+      host = element(
+        libvirt_domain.lb.*.network_interface.0.addresses.0,
+        count.index,
+      )
+    }
+    
+    command = <<EOT
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null config/ifcfg-eth1 $user@$host:/tmp
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo mv /tmp/ifcfg-eth1 /etc/sysconfig/network/
+EOT
+  }
+}
+
+resource "null_resource" "lb_zypperup" {
+  depends_on = [null_resource.lb_exteth1]
   count      = var.lbs
 
   provisioner "local-exec" {
@@ -149,14 +169,29 @@ resource "null_resource" "lb_reboot" {
     }
 
     command = <<EOT
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null config/ifcfg-eth1 $user@$host:/tmp
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo mv /tmp/ifcfg-eth1 /etc/sysconfig/network/
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo zypper up -y -l --auto-agree-with-product-licenses 2>&1>/dev/null"
+EOT
+  }
+}
+
+resource "null_resource" "lb_reboot" {
+  depends_on = [null_resource.lb_zypperup]
+  count      = var.lbs
+
+  provisioner "local-exec" {
+    environment = {
+      user = var.username
+      host = element(
+        libvirt_domain.lb.*.network_interface.0.addresses.0,
+        count.index,
+      )
+    }
+
+    command = <<EOT
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
 # wait for ssh ready after reboot
 sleep 20
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectionAttempts=60 $user@$host /usr/bin/true
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectionAttempts=80 $user@$host /usr/bin/true
 EOT
-
   }
 }
