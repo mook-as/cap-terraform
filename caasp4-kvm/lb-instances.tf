@@ -126,6 +126,7 @@ resource "null_resource" "lb_wait_cloudinit" {
     user     = var.username
     password = var.password
     type     = "ssh"
+    timeout  = "10m"
   }
 
   provisioner "remote-exec" {
@@ -150,7 +151,7 @@ resource "null_resource" "lb_exteth1" {
     
     command = <<EOT
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null config/ifcfg-eth1 $user@$host:/tmp
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo mv /tmp/ifcfg-eth1 /etc/sysconfig/network/
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo mv /tmp/ifcfg-eth1 /etc/sysconfig/network/"
 EOT
   }
 }

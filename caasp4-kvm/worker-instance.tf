@@ -112,6 +112,7 @@ resource "null_resource" "worker_wait_cloudinit" {
     user     = var.username
     password = var.password
     type     = "ssh"
+    timeout  = "10m"
   }
 
   provisioner "remote-exec" {
@@ -136,7 +137,7 @@ resource "null_resource" "worker_swapaccount" {
 
     command = <<EOT
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo sed --in-place --regexp-extended 's|^(GRUB_CMDLINE_LINUX_DEFAULT=)\"(.*.)\"|\1\"\2 swapaccount=1\"|' /etc/default/grub"
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo update-bootloader
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo update-bootloader"
 EOT
   }
 }
@@ -174,11 +175,10 @@ resource "null_resource" "worker_reboot" {
     }
 
     command = <<EOT
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host sudo reboot || :
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo reboot || :"
 # wait for ssh ready after reboot
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectionAttempts=80 $user@$host /usr/bin/true
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectionAttempts=80 $user@$host "/usr/bin/true"
 EOT
 
   }
 }
-
