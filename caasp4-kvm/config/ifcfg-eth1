@@ -5,4 +5,3 @@ ONBOOT=yes
 STARTMODE=auto
 TYPE=Ethernet
 USERCTL=no
-MTU=9000
