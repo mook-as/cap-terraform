@@ -136,28 +136,8 @@ resource "null_resource" "lb_wait_cloudinit" {
   }
 }
 
-resource "null_resource" "lb_exteth1" {
-  depends_on = [null_resource.lb_wait_cloudinit]
-  count      = var.lbs
-
-  provisioner "local-exec" {
-    environment = {
-      user = var.username
-      host = element(
-        libvirt_domain.lb.*.network_interface.0.addresses.0,
-        count.index,
-      )
-    }
-    
-    command = <<EOT
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null config/ifcfg-eth1 $user@$host:/tmp
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo mv /tmp/ifcfg-eth1 /etc/sysconfig/network/"
-EOT
-  }
-}
-
 resource "null_resource" "lb_zypperup" {
-  depends_on = [null_resource.lb_exteth1]
+  depends_on = [null_resource.lb_wait_cloudinit]
   count      = var.lbs
 
   provisioner "local-exec" {
@@ -175,8 +155,37 @@ EOT
   }
 }
 
-resource "null_resource" "lb_reboot" {
+resource "null_resource" "lb_exteth1" {
   depends_on = [null_resource.lb_zypperup]
+  count      = var.lbs
+
+  provisioner "local-exec" {
+    environment = {
+      user = var.username
+      host = element(
+        libvirt_domain.lb.*.network_interface.0.addresses.0,
+        count.index,
+      )
+    }
+
+    command = <<EOT
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null config/ifcfg-eth1 $user@$host:/tmp
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo mv /tmp/ifcfg-eth1 /etc/sysconfig/network/"
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo wicked ifup eth1"
+hostmac=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo cat /sys/class/net/eth1/address")
+duidprefix=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo wicked duid get" | awk '{print$2}' | cut -d ":" -f1-8)
+newduid=$(echo "$duidprefix:$hostmac")
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo sed -i '$ a DHCLIENT_SET_DEFAULT_ROUTE='no'' /etc/sysconfig/network/ifcfg-eth0"
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo rm -f /var/lib/wicked/lease-eth1-dhcp-ipv6.xml"
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo wicked duid set $newduid"
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo ip route del default"
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $user@$host "sudo netconfig update -f"
+EOT
+  }
+}
+
+resource "null_resource" "lb_reboot" {
+  depends_on = [null_resource.lb_exteth1]
   count      = var.lbs
 
   provisioner "local-exec" {
